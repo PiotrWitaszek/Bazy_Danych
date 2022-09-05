@@ -18,15 +18,20 @@ def create_connection(db_file):
     return conn
 
 
-def execute_sql(conn, sql):
+def execute_sql(conn, sql, args=None):
     """Execute sql
     :param conn: Connection object
     :param sql: a SQL script
+    :param args: a tuple of arguments
     :return:
     """
     try:
         c = conn.cursor()
-        c.execute(sql)
+        if args:
+            c.execute(sql, args)
+        else:
+            c.execute(sql)
+        return c
     except Error as e:
         print(e)
 
@@ -50,33 +55,26 @@ def select_all(conn):
     :return:
     """
     sql = """SELECT * FROM highest_scorers"""
-    cur = conn.cursor()
-    cur.execute(sql)
+    cur = execute_sql(conn, sql)
     rows = cur.fetchall()
 
     print(rows)
 
 
 def select_where(conn, points):
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM highest_scorers WHERE points=?", (points,))
-    # w select_all(conn) udało mi się z tym execute.sql, ale gdy funkcja pobiera coś więcej niż conn to od razu mi błęd wyskakują
-    # sql = f'"""SELECT * FROM highest_scorers WHERE points=?""", (points,)'
-
+    cur = execute_sql(conn, "SELECT * FROM highest_scorers WHERE points=?", (points,))
     rows = cur.fetchall()
 
     print(rows)
 
 
 def update(conn, points, id):
-    cur = conn.cursor()
-    cur.execute("UPDATE highest_scorers SET points=? WHERE id=?", (points, id))
+    execute_sql(conn, "UPDATE highest_scorers SET points=? WHERE id=?", (points, id))
     conn.commit()
 
 
 def delete_where(conn, id):
-    cur = conn.cursor()
-    cur.execute("DELETE FROM highest_scorers WHERE id=?", (id,))
+    execute_sql(conn, "DELETE FROM highest_scorers WHERE id=?", (id,))
     conn.commit()
 
 
@@ -87,9 +85,7 @@ def delete_all(conn):
     :param table: table name
     :return:
     """
-    sql = f"DELETE FROM highest_scorers"
-    cur = conn.cursor()
-    cur.execute(sql)
+    execute_sql(conn, f"DELETE FROM highest_scorers")
     conn.commit()
     print("Deleted")
 
@@ -122,8 +118,14 @@ if __name__ == "__main__":
         )
         add_scorers(conn, scorers)
         select_all(conn)
+        print("======")
         delete_where(conn, 1)
-        update(conn, 85, 3)
-        select_where(conn, 73)
         select_all(conn)
+        print("======")
+        update(conn, 85, 3)
+        select_all(conn)
+        print("======")
+        select_where(conn, 73)
+        print("======")
         delete_all(conn)
+        select_all(conn)
