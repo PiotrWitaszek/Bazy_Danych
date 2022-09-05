@@ -44,7 +44,7 @@ def add_scorers(conn, scorers):
     conn.commit()
 
 
-def select_all():
+def select_all(conn):
     """
     Query all rows in the table
     :param conn: the Conmnection object
@@ -57,7 +57,7 @@ def select_all():
     print(rows)
 
 
-def select_where(points):
+def select_where(conn, points):
     cur = conn.cursor()
     cur.execute("SELECT * FROM highest_scorers WHERE points=?", (points,))
     rows = cur.fetchall()
@@ -65,19 +65,20 @@ def select_where(points):
     print(rows)
 
 
-def update(points, id):
+def update(conn, points, id):
     cur = conn.cursor()
     cur.execute("UPDATE highest_scorers SET points=? WHERE id=?", (points, id))
+    #execute_sql użyć zamiast cur.execute czy oprócz?
     conn.commit()
 
 
-def delete_where(id):
+def delete_where(conn, id):
     cur = conn.cursor()
     cur.execute("DELETE FROM highest_scorers WHERE id=?", (id,))
     conn.commit()
 
 
-def delete_all():
+def delete_all(conn):
     """
     Delete all rows from table
     :param conn: Connection to the SQLite database
@@ -88,6 +89,7 @@ def delete_all():
     cur = conn.cursor()
     cur.execute(sql)
     conn.commit
+    #to z jakiego edytora korzystasz bo ja tu niestety nic nie dostaję 
     print("Deleted")
 
 
@@ -118,9 +120,11 @@ if __name__ == "__main__":
             (None, 71, "Elgin Baylor"),
         )
         add_scorers(conn, scorers)
-        select_all()
-        delete_where(1)
-        update(85, 3)
-        select_where(73)
-        select_all()
-        delete_all()
+        select_all(conn)
+        delete_where(conn, 1)
+        update(conn, 85, 3)
+        select_where(conn, 73)
+        select_all(conn)
+        delete_all(conn)
+## jak chcę przetestowac czy działa to otrzymuję wyniki różne - czasami jest dokładnie to czego oczekuję a czasem id dochodzi do np 325 rekordów - gdy np skopiukę kod 
+# i wkleję do innego edytora pokazuje mi albo dorze ale z każdym kolejnym naciśnięciem run liczba rekordów się zwiększa - co jest przyczyną?
