@@ -39,7 +39,6 @@ def add_scorers(conn, scorers):
     return: project id
     """
     cur = conn.cursor()
-    # używamy tutaj zmiennej globalnie zdeklarowane - to bym z chęcią omówił na spotkaniu jeszcze
     cur.executemany("INSERT INTO highest_scorers VALUES(?, ?, ?)", scorers)
     conn.commit()
 
@@ -50,8 +49,9 @@ def select_all(conn):
     :param conn: the Conmnection object
     :return:
     """
+    sql = """SELECT * FROM highest_scorers"""
     cur = conn.cursor()
-    cur.execute(f"SELECT * FROM highest_scorers")
+    cur.execute(sql)
     rows = cur.fetchall()
 
     print(rows)
@@ -60,6 +60,9 @@ def select_all(conn):
 def select_where(conn, points):
     cur = conn.cursor()
     cur.execute("SELECT * FROM highest_scorers WHERE points=?", (points,))
+    # w select_all(conn) udało mi się z tym execute.sql, ale gdy funkcja pobiera coś więcej niż conn to od razu mi błęd wyskakują
+    # sql = f'"""SELECT * FROM highest_scorers WHERE points=?""", (points,)'
+
     rows = cur.fetchall()
 
     print(rows)
@@ -68,7 +71,6 @@ def select_where(conn, points):
 def update(conn, points, id):
     cur = conn.cursor()
     cur.execute("UPDATE highest_scorers SET points=? WHERE id=?", (points, id))
-    #execute_sql użyć zamiast cur.execute czy oprócz?
     conn.commit()
 
 
@@ -88,8 +90,7 @@ def delete_all(conn):
     sql = f"DELETE FROM highest_scorers"
     cur = conn.cursor()
     cur.execute(sql)
-    conn.commit
-    #to z jakiego edytora korzystasz bo ja tu niestety nic nie dostaję 
+    conn.commit()
     print("Deleted")
 
 
@@ -126,5 +127,3 @@ if __name__ == "__main__":
         select_where(conn, 73)
         select_all(conn)
         delete_all(conn)
-## jak chcę przetestowac czy działa to otrzymuję wyniki różne - czasami jest dokładnie to czego oczekuję a czasem id dochodzi do np 325 rekordów - gdy np skopiukę kod 
-# i wkleję do innego edytora pokazuje mi albo dorze ale z każdym kolejnym naciśnięciem run liczba rekordów się zwiększa - co jest przyczyną?
